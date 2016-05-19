@@ -38,22 +38,20 @@ xml_parse_data <- function(x, includeText = NA) {
   pd$line2 <- as.character(pd$line2)
   pd$col2 <- as.character(pd$col2)
 
-  outstream <- rawConnection(raw(0), "w")
-  on.exit(close(outstream))
+  buf_clear()
 
-  writeChar(
-    con = outstream, eos = NULL,
-    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<exprlist>\n"
-  )
+  buf_append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<exprlist>\n")
 
   for (c in which(pd$parent == 0)) {
     to_xml_subtree(pd, forest, c, outstream)
-    writeChar(con = outstream, "\n", eos = NULL)
+    buf_append("\n")
   }
 
-  writeChar(con = outstream, "</exprlist>\n", eos = NULL)
+  buf_append("</exprlist>\n")
 
-  rawToChar(rawConnectionValue(outstream))
+  res <- buf_get()
+  buf_clear()
+  res
 }
 
 fix_comments <- function(pd) {
@@ -96,8 +94,7 @@ to_xml_subtree <- function(pd, forest, root, outstream, indent = 0) {
   text <- xml_encode(pd$text[root])
   if (text == "") text <- character()
 
-  writeChar(
-    con = outstream, eos = NULL,
+  buf_append(
     c(spaces(indent), "<", token,
       " line1=\"", pd$line1[root],
       "\" col1=\"", pd$col1[root],
@@ -110,13 +107,10 @@ to_xml_subtree <- function(pd, forest, root, outstream, indent = 0) {
 
   for (c in forest[[root]]) {
     to_xml_subtree(pd, forest, c, outstream, indent + 2)
-    writeChar(con = outstream, "\n", eos = NULL)
+    buf_append("\n")
   }
 
-  writeChar(
-    con = outstream, eos = NULL,
-    c(if (length(forest[[root]])) spaces(indent), "</", token, ">")
-  )
+  buf_append(c(if (length(forest[[root]])) spaces(indent), "</", token, ">"))
 }
 
 map_token <- function(token) {
