@@ -132,6 +132,7 @@ map <- c(
   "'}'" = "OP-RIGHT-BRACE",
   "')'" = "OP-RIGHT-PAREN",
   "'!'" = "OP-EXCLAMATION",
+  "']'" = "OP-RIGHT-BRACE",
   "','" = "OP-COMMA"
 )
 
