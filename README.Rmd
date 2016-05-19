@@ -12,9 +12,8 @@ knitr::opts_chunk$set(
 
 > Parse Data of R Code as an 'XML' Tree
 
-[![Linux Build Status](https://travis-ci.org//xmlparsedata.svg?branch=master)](https://travis-ci.org//xmlparsedata)
-
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/github//xmlparsedata?svg=true)](https://ci.appveyor.com/project//xmlparsedata)
+[![Linux Build Status](https://travis-ci.org/MangoTheCat/xmlparsedata.svg?branch=master)](https://travis-ci.org/MangoTheCat/xmlparsedata)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/github/MangoTheCat/xmlparsedata?svg=true)](https://ci.appveyor.com/project/gaborcsardi/xmlparsedata)
 [![](http://www.r-pkg.org/badges/version/xmlparsedata)](http://www.r-pkg.org/pkg/xmlparsedata)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/xmlparsedata)](http://www.r-pkg.org/pkg/xmlparsedata)
 
@@ -25,7 +24,7 @@ Convert the output of 'utils::getParseData()' to an 'XML' tree, that is
 ## Installation
 
 ```{r eval = FALSE}
-devtools::install_github("/xmlparsedata")
+source("https://install-github.me/MangoTheCat/xmlparsedata")
 ```
 
 ## Usage
@@ -36,4 +35,4 @@ library(xmlparsedata)
 
 ## License
 
-MIT + file LICENSE © 
+MIT © Mango Solutions
