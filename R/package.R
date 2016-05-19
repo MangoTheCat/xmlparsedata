@@ -82,6 +82,7 @@ make_forest <- function(pd) {
 
 to_xml_subtree <- function(pd, forest, root, indent = 0) {
   root_xml <- to_xml_node(pd, root)
+  ss <- spaces(indent)
 
   num_children <- length(forest[[root]])
   children_xml <- vapply(
@@ -91,24 +92,21 @@ to_xml_subtree <- function(pd, forest, root, indent = 0) {
   )
 
   paste0(
-    spaces(indent), root_xml[[1]],
+    ss, root_xml[[1]],
     if (num_children) "\n",
     if (num_children) paste(children_xml, collapse = "\n"),
     if (num_children) "\n",
-    if (num_children) spaces(indent),
+    if (num_children) ss,
     root_xml[[2]]
   )
 }
 
 to_xml_node <- function(pd, node) {
-  mypd <- pd[node, ]
-  token <- map_token(mypd$token)
-  start <- paste0(mypd$line1, ":", mypd$col1)
-  end <- paste0(mypd$line2, ":", mypd$col2)
+  token <- map_token(pd$token[node])
   c(paste0("<",  token,
-           " line1=\"", mypd$line1, "\" col1=\"", mypd$col1,
-           "\" line2=\"", mypd$line2, "\" col2=\"", mypd$col2,
-           "\">", xml_encode(mypd$text)),
+           " line1=\"", pd$line1[node], "\" col1=\"", pd$col1[node],
+           "\" line2=\"", pd$line2[node], "\" col2=\"", pd$col2[node],
+           "\">", xml_encode(pd$text[node])),
     paste0("</", token, ">"))
 }
 
