@@ -105,8 +105,10 @@ to_xml_node <- function(pd, node) {
   token <- map_token(mypd$token)
   start <- paste0(mypd$line1, ":", mypd$col1)
   end <- paste0(mypd$line2, ":", mypd$col2)
-  c(paste0("<",  token, " start=\"", start, "\" end=\"", end, "\">",
-           xml_encode(mypd$text)),
+  c(paste0("<",  token,
+           " line1=\"", mypd$line1, "\" col1=\"", mypd$col1,
+           "\" line2=\"", mypd$line2, "\" col2=\"", mypd$col2,
+           "\">", xml_encode(mypd$text)),
     paste0("</", token, ">"))
 }
 
