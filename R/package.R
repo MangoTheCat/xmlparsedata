@@ -103,9 +103,10 @@ to_xml_subtree <- function(pd, forest, root, indent = 0) {
 to_xml_node <- function(pd, node) {
   mypd <- pd[node, ]
   token <- map_token(mypd$token)
-  pos <- paste0(mypd$line1, ":", mypd$col1, "-",
-                mypd$line2, ":", mypd$col2)
-  c(paste0("<",  token, " pos=\"", pos, "\">", xml_encode(mypd$text)),
+  start <- paste0(mypd$line1, ":", mypd$col1)
+  end <- paste0(mypd$line2, ":", mypd$col2)
+  c(paste0("<",  token, " start=\"", start, "\" end=\"", end, "\">",
+           xml_encode(mypd$text)),
     paste0("</", token, ">"))
 }
 
