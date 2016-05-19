@@ -26,12 +26,38 @@ xml_parse_data <- function(x, includeText = NA) {
   pd <- getParseData(x, includeText = includeText)
   pd <- fix_comments(pd)
   pd <- correct_order(pd)
+  pd <- rewrite_ids(pd)
   forest <- make_forest(pd)
-  to_xml_subtree(pd, forest, "0")
+
+  ## Order, so that id corresponds to line number, simplifies indexing
+  pd <- pd[ order(pd$id), ]
+
+  ## The root is not in the tree, so need to handle separately here
+  children_xml <- vapply(
+    FUN = to_xml_subtree, FUN.VALUE = "",
+    which(pd$parent == 0),
+    pd = pd, forest = forest
+  )
+  paste0(
+    "<exprlist>\n",
+    paste(children_xml, collapse = "\n"),
+    "\n</exprlist>\n"
+  )
 }
 
 fix_comments <- function(pd) {
-  pd$parent[ pd$parent < 0 & pd$token == "COMMENT" ] <- 0
+  pd[ pd$parent >= 0, ]
+}
+
+## Rewrite the node IDs, so that they are consecutive, and
+## we don't have to access the rows via names. Names are really
+## slow for some reason
+
+rewrite_ids <- function(pd) {
+  levels <- sort(unique(c(pd$id, pd$parent)))
+  pd$id <- as.integer(factor(pd$id, levels = levels)) - 1L
+  pd$parent <- as.integer(factor(pd$parent, levels = levels)) -1L
+  rownames(pd) <- NULL
   pd
 }
 
@@ -44,7 +70,13 @@ correct_order <- function(pd) {
 }
 
 make_forest <- function(pd) {
-  lapply(tapply(pd$id, pd$parent, c, simplify = FALSE), chr)
+  forest <- tapply(pd$id, pd$parent, c, simplify = FALSE)
+  empty <- structure(
+    vector(nrow(pd), mode = "list"),
+    names = 1:nrow(pd)
+  )
+  empty[as.integer(names(forest[-1]))] <- forest[-1]
+  empty
 }
 
 to_xml_subtree <- function(pd, forest, root, indent = 0) {
@@ -68,17 +100,12 @@ to_xml_subtree <- function(pd, forest, root, indent = 0) {
 }
 
 to_xml_node <- function(pd, node) {
-  if (node == "0") {
-    c("<exprlist>\n", "\n</exprlist>")
-
-  } else {
-    mypd <- pd[node, ]
-    token <- map_token(mypd$token)
-    pos <- paste0(mypd$line1, ":", mypd$col1, "-",
-                  mypd$line2, ":", mypd$col2)
-    c(paste0("<",  token, " pos=\"", pos, "\">", xml_encode(mypd$text)),
-      paste0("</", token, ">"))
-  }
+  mypd <- pd[node, ]
+  token <- map_token(mypd$token)
+  pos <- paste0(mypd$line1, ":", mypd$col1, "-",
+                mypd$line2, ":", mypd$col2)
+  c(paste0("<",  token, " pos=\"", pos, "\">", xml_encode(mypd$text)),
+    paste0("</", token, ">"))
 }
 
 map_token <- function(token) {
