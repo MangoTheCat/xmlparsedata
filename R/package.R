@@ -39,6 +39,7 @@ xml_parse_data <- function(x, includeText = NA) {
     pd = pd, forest = forest
   )
   paste0(
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n",
     "<exprlist>\n",
     paste(children_xml, collapse = "\n"),
     "\n</exprlist>\n"
