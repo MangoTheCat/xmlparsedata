@@ -120,7 +120,7 @@ map <- c(
   "'+'" = "OP-PLUS",
   "'-'" = "OP-MINUS",
   "'*'" = "OP-STAR",
-  "'*'" = "OP-SLASH",
+  "'/'" = "OP-SLASH",
   "':'" = "OP-COLON",
   "'^'" = "OP-CARET",
   "'$'" = "OP-DOLLAR",
