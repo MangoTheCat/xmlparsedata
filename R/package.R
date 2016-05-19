@@ -12,6 +12,7 @@ NULL
 #'
 #' TODO
 #'
+#' @param pretty Whether to pretty-indent the XML output.
 #' @inheritParams utils::getParseData
 #' @return An XML string representing the parse data. See details below
 #'
@@ -22,14 +23,13 @@ NULL
 #' expr <- parse(text = code, keep.source = TRUE)
 #' cat(xml_parse_data(expr))
 
-xml_parse_data <- function(x, includeText = NA) {
+xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
   pd <- getParseData(x, includeText = includeText)
   pd <- fix_comments(pd)
 
   ## Tags for all nodes, teminal nodes have end tags as well
   pd$token <- map_token(pd$token)
   pd$tag <- paste0(
-    ifelse(pd$terminal, "  ", ""),
     "<", pd$token,
     " line1=\"", pd$line1,
     "\" col1=\"", pd$col1,
@@ -43,7 +43,7 @@ xml_parse_data <- function(x, includeText = NA) {
   ## Add an extra terminal tag for each non-terminal one
   pd2 <- pd[! pd$terminal, ]
   pd2$terminal <- TRUE
-  pd2$text <- "foo"
+  pd2$parent <- -1
   pd2$line1 <- pd2$line2
   pd2$col1 <- pd2$col2
   pd2$line2 <- pd2$line2 - 1L
@@ -55,9 +55,19 @@ xml_parse_data <- function(x, includeText = NA) {
   ## Order the nodes properly
   pd <- pd[ order(pd$line1, pd$col1, -pd$line2, -pd$col2, pd$terminal), ]
 
+  if (pretty) {
+    str <- ! pd$terminal
+    end <- pd$parent == -1
+    ind <- 2L + cumsum(str * 2L + end * (-2L)) - str * 2L
+    xml <- paste0(spaces(ind), pd$tag, collapse = "\n")
+
+  } else {
+    xml <- paste(pd$tag, collapse = "\n")
+  }
+
   paste0(
     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<exprlist>\n",
-    paste(pd$tag, collapse = "\n"),
+    xml,
     "\n</exprlist>\n"
   )
 }

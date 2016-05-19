@@ -4,7 +4,7 @@
 \alias{xml_parse_data}
 \title{Convert R parse data to XML}
 \usage{
-xml_parse_data(x, includeText = NA)
+xml_parse_data(x, includeText = NA, pretty = FALSE)
 }
 \arguments{
 \item{x}{
@@ -15,6 +15,8 @@ xml_parse_data(x, includeText = NA)
 \item{includeText}{
     logical; whether to include the text of parsed items in the result
   }
+
+\item{pretty}{Whether to pretty-indent the XML output.}
 }
 \value{
 An XML string representing the parse data. See details below
