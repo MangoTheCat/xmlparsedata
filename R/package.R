@@ -101,7 +101,8 @@ xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
 }
 
 fix_comments <- function(pd) {
-  pd[ pd$parent >= 0, ]
+  pd$parent[ pd$parent < 0 ] <- 0
+  pd
 }
 
 map_token <- function(token) {
