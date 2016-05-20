@@ -52,7 +52,17 @@ NULL
 #' cat(xml_parse_data(expr, pretty = TRUE))
 
 xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
+
+  xml_header <- paste0(
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"",
+    "standalone=\"yes\" ?>\n<exprlist>\n"
+  )
+  xml_footer <- "\n</exprlist>\n"
+
   pd <- getParseData(x, includeText = includeText)
+
+  if (!nrow(pd)) return(paste0(xml_header, xml_footer))
+
   pd <- fix_comments(pd)
 
   ## Tags for all nodes, teminal nodes have end tags as well
@@ -70,15 +80,16 @@ xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
 
   ## Add an extra terminal tag for each non-terminal one
   pd2 <- pd[! pd$terminal, ]
-  pd2$terminal <- TRUE
-  pd2$parent <- -1
-  pd2$line1 <- pd2$line2
-  pd2$col1 <- pd2$col2
-  pd2$line2 <- pd2$line2 - 1L
-  pd2$col2 <- pd2$col2 - 1L
-  pd2$tag <- paste0("</", pd2$token, ">")
-
-  pd <- rbind(pd, pd2)
+  if (nrow(pd2)) {
+    pd2$terminal <- TRUE
+    pd2$parent <- -1
+    pd2$line1 <- pd2$line2
+    pd2$col1 <- pd2$col2
+    pd2$line2 <- pd2$line2 - 1L
+    pd2$col2 <- pd2$col2 - 1L
+    pd2$tag <- paste0("</", pd2$token, ">")
+    pd <- rbind(pd, pd2)
+  }
 
   ## Order the nodes properly
   pd <- pd[ order(pd$line1, pd$col1, -pd$line2, -pd$col2, pd$terminal), ]
@@ -93,11 +104,7 @@ xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
     xml <- paste(pd$tag, collapse = "\n")
   }
 
-  paste0(
-    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<exprlist>\n",
-    xml,
-    "\n</exprlist>\n"
-  )
+  paste0(xml_header, xml, xml_footer)
 }
 
 fix_comments <- function(pd) {

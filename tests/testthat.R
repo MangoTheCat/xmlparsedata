@@ -1,4 +1,7 @@
 library(testthat)
 library(xmlparsedata)
 
-test_check("xmlparsedata")
+if (requireNamespace("xml2", quietly = TRUE)) {
+  test_check("xmlparsedata")
+}
+
