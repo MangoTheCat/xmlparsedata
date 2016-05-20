@@ -21,6 +21,17 @@ knitr::opts_chunk$set(
 Convert the output of 'utils::getParseData()' to an 'XML' tree, that is
 searchable and easier to manipulate in general.
 
+---
+
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Introduction](#introduction)
+    - [`utils::getParseData()`](#utilsgetparsedata)
+    - [`xml_parse_data()`](#xml_parse_data)
+    - [Renaming some tokens](#renaming-some-tokens)
+    - [Search the parse tree with `xml2`](#search-the-parse-tree-with-xml2)
+  - [License](#license)
+
 ## Installation
 
 ```{r eval = FALSE}
@@ -85,7 +96,7 @@ renamed, see the `xml_parse_token_map` vector for the mapping:
 xml_parse_token_map
 ```
 
-### Use the `xml2` package to search the parse tree
+### Search the parse tree with `xml2`
 
 The `xml2` package can search XML documents using
 [XPath](https://en.wikipedia.org/wiki/XPath) expressions. This is often

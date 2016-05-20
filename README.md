@@ -14,6 +14,17 @@
 Convert the output of 'utils::getParseData()' to an 'XML' tree, that is
 searchable and easier to manipulate in general.
 
+---
+
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Introduction](#introduction)
+    - [`utils::getParseData()`](#utilsgetparsedata)
+    - [`xml_parse_data()`](#xml_parse_data)
+    - [Renaming some tokens](#renaming-some-tokens)
+    - [Search the parse tree with `xml2`](#search-the-parse-tree-with-xml2)
+  - [License](#license)
+
 ## Installation
 
 
@@ -92,7 +103,7 @@ cat(xml)
 ```
 
 ```
-#> <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+#> <?xml version="1.0" encoding="UTF-8"standalone="yes" ?>
 #> <exprlist>
 #>   <expr line1="1" col1="1" line2="3" col2="1">
 #>     <FUNCTION line1="1" col1="1" line2="1" col2="8">function</FUNCTION>
@@ -156,7 +167,7 @@ xml_parse_token_map
 #>  "OP-EXCLAMATION"  "OP-RIGHT-BRACE"        "OP-COMMA"
 ```
 
-### Use the `xml2` package to search the parse tree
+### Search the parse tree with `xml2`
 
 The `xml2` package can search XML documents using
 [XPath](https://en.wikipedia.org/wiki/XPath) expressions. This is often
@@ -214,7 +225,7 @@ cat(bad)
 ```
 
 ```
-#> <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+#> <?xml version="1.0" encoding="UTF-8"standalone="yes" ?>
 #> <exprlist>
 #>   <expr line1="1" col1="1" line2="1" col2="12">
 #>     <expr line1="1" col1="1" line2="1" col2="1">
