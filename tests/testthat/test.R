@@ -31,4 +31,11 @@ test_that("non-trivial input", {
   ip <- deparse(utils::install.packages)
   xml <- xml_parse_data(parse(text = ip, keep.source = TRUE))
   expect_silent(x <- xml2::read_xml(xml))
+
+  dp <- deparse(utils::install.packages)
+  xml <- xml_parse_data(
+    parse(text = dp, keep.source = TRUE),
+    pretty = TRUE
+  )
+  expect_silent(x <- xml2::read_xml(xml))  
 })
