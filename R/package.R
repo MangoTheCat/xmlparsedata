@@ -10,18 +10,46 @@ NULL
 
 #' Convert R parse data to XML
 #'
-#' TODO
+#' In recent R versions the parser can attach source code location
+#' information to the parsed expressions. This information is often
+#' useful for static analysis, e.g. code linting. It can be accessed
+#' via the \code{\link[utils]{getParseData}} function.
 #'
-#' @param pretty Whether to pretty-indent the XML output.
+#' \code{xml_parse_data} converts this information to an XML tree.
+#' The R parser's token names are preserved in the XML as much as
+#' possible, but some of them are not valid XML tag names, so they are
+#' renamed, see the \code{\link{xml_parse_token_map}} vector for the
+#' mapping.
+#'
+#' The top XML tag is \code{<exprlist>}, which is a list of
+#' expressions, each expression is an \code{<expr>} tag. Each tag
+#' has attributes that define the location: \code{line1}, \code{col1},
+#' \code{line2}, \code{col2}. These are from the \code{\link{getParseData}}
+#' data frame column names.
+#'
+#' See an example below. See also the README at
+#' \url{https://github.com/MangoTheCat/xmlparsedata#readme}
+#' for examples on how to search the XML tree with the \code{xml2} package
+#' and XPath expressions.
+#'
+#' @param pretty Whether to pretty-indent the XML output. It has a small
+#'   overhead which probably only matters for very large source files.
 #' @inheritParams utils::getParseData
-#' @return An XML string representing the parse data. See details below
+#' @return An XML string representing the parse data. See details below.
 #'
 #' @export
 #' @importFrom utils getParseData
+#' @seealso \code{\link{xml_parse_token_map}} for the token names.
+#' \url{https://github.com/MangoTheCat/xmlparsedata#readme} for more
+#' information and use cases.
 #' @examples
 #' code <- "function(a = 1, b = 2) {\n  a + b\n}\n"
 #' expr <- parse(text = code, keep.source = TRUE)
-#' cat(xml_parse_data(expr))
+#'
+#' # The base R way:
+#' getParseData(expr)
+#'
+#' cat(xml_parse_data(expr, pretty = TRUE))
 
 xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
   pd <- getParseData(x, includeText = includeText)
@@ -77,11 +105,21 @@ fix_comments <- function(pd) {
 }
 
 map_token <- function(token) {
-  map <- map[token]
+  map <- xml_parse_token_map[token]
   ifelse(is.na(map), token, map)
 }
 
-map <- c(
+#' Map token names of the R parser to token names in
+#' \code{\link{xml_parse_data}}
+#'
+#' Some of the R token names are not valid XML tag names,
+#' so \code{\link{xml_parse_data}} needs to replace them to create a
+#' valid XML file.
+#'
+#' @export
+#' @seealso \code{\link{xml_parse_data}}
+
+xml_parse_token_map <- c(
   "'?'" = "OP-QUESTION",
   "'~'" = "OP-TILDE",
   "'+'" = "OP-PLUS",
