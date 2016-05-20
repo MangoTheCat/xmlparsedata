@@ -2,7 +2,7 @@
 context("xmlparsedata")
 
 test_that("empty input", {
-  xml <- xml_parse_data(parse(text = ""))
+  xml <- xml_parse_data(parse(text = "", keep.source = TRUE))
   expect_true(is.character(xml))
   expect_true(length(xml) == 1)
   expect_match(xml, "<exprlist>\\s*</exprlist>")
@@ -10,13 +10,13 @@ test_that("empty input", {
 })
 
 test_that("trivial input", {
-  xml <- xml_parse_data(parse(text = "# comment\n"))
+  xml <- xml_parse_data(parse(text = "# comment\n", keep.source = TRUE))
   expect_true(is.character(xml))
   expect_true(length(xml) == 1)
   expect_match(xml, "<exprlist>\\s*<COMMENT [^<]*</COMMENT>\\s*</exprlist>")
   expect_silent(x <- xml2::read_xml(xml))
 
-  xml <- xml_parse_data(parse(text = "1"))
+  xml <- xml_parse_data(parse(text = "1", keep.source = TRUE))
   expect_match(
     xml,
     paste0(
@@ -29,6 +29,6 @@ test_that("trivial input", {
 
 test_that("non-trivial input", {
   ip <- deparse(utils::install.packages)
-  xml <- xml_parse_data(parse(text = ip))
+  xml <- xml_parse_data(parse(text = ip, keep.source = TRUE))
   expect_silent(x <- xml2::read_xml(xml))
 })
