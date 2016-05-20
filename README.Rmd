@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 
 Convert the output of 'utils::getParseData()' to an 'XML' tree, that is
-  searchable and easier to manipulate in general.
+searchable and easier to manipulate in general.
 
 ## Installation
 
@@ -29,8 +29,139 @@ source("https://install-github.me/MangoTheCat/xmlparsedata")
 
 ## Usage
 
+### Introduction
+
+In recent R versions the parser can attach source code location
+information to the parsed expressions. This information is often
+useful for static analysis, e.g. code linting. It can be accessed
+via the `utils::getParseData()` function.
+
+`xmlparsedata` converts this information to an XML tree.
+The R parser's token names are preserved in the XML as much as
+possible, but some of them are not valid XML tag names, so they are
+renamed, see below.
+
+### `utils::getParseData()`
+
+`utils::getParseData()` summarizes the parse information in a data
+frame. The data frame has one row per expression tree node, and each
+node points to its parent. Here is a small example:
+
+```{r}
+p <- parse(
+  text = "function(a = 1, b = 2) { \n  a + b\n}\n",
+  keep.source = TRUE
+  )
+getParseData(p)
+```
+
+### `xml_parse_data()`
+
+`xmlparsedata::xml_parse_data()` converts the parse information to
+an XML document. It works similarly to `getParseData()`. Specify the
+`pretty = TRUE` option to pretty-indent the XML output. Note that this
+has a small overhead, so if you are parsing large files, I suggest you
+omit it.
+
 ```{r}
 library(xmlparsedata)
+xml <- xml_parse_data(p, pretty = TRUE)
+cat(xml)
+```
+
+The top XML tag is `<exprlist>`, which is a list of
+expressions, each expression is an `<expr>` tag. Each tag
+has attributes that define the location: `line1`, `col1`,
+`line2`, `col2`. These are from the `getParseData()`
+data frame column names.
+
+### Renaming some tokens
+
+The R parser's token names are preserved in the XML as much as
+possible, but some of them are not valid XML tag names, so they are
+renamed, see the `xml_parse_token_map` vector for the mapping:
+
+```{r}
+xml_parse_token_map
+```
+
+### Use the `xml2` package to search the parse tree
+
+The `xml2` package can search XML documents using
+[XPath](https://en.wikipedia.org/wiki/XPath) expressions. This is often
+useful to search for specific code patterns.
+
+As an example we search a source file from base R for `1:nrow(<expr>)`
+expressions, which are usually unsafe, as `nrow()` might be zero,
+and then the expression is equivalent to `1:0`, i.e. `c(1, 0)`, which
+is usually not the intended behavior.
+
+We load and parse the file directly from the the R source code mirror
+at https://github.com/wch/r-source:
+
+```{r}
+url <- paste0(
+  "https://raw.githubusercontent.com/wch/r-source/",
+  "4fc93819fc7401b8695ce57a948fe163d4188f47/src/library/tools/R/xgettext.R"
+)
+src <- readLines(url)
+p <- parse(text = src, keep.source = TRUE)
+```
+
+and we convert it to an XML tree:
+
+```{r}
+library(xml2)
+xml <- read_xml(xml_parse_data(p))
+```
+
+The `1:nrow(<expr>)` expression corresponds to the following
+tree in R:
+
+```
+<expr>
+  +-- <expr>
+    +-- NUM_CONST: 1
+  +-- ':'
+  +-- <expr>
+    +-- <expr>
+      +-- SYMBOL_FUNCTION_CALL nrow
+    +-- '('
+	+-- <expr>
+	+-- ')'
+```
+
+```{r}
+bad <- xml_parse_data(
+  parse(text = "1:nrow(expr)", keep.source = TRUE),
+  pretty = TRUE
+)
+cat(bad)
+```
+
+This translates to the following XPath expression (ignoring
+the last tree tokens from the `length(expr)` expressions):
+
+```{r}
+xp <- paste0(
+  "//expr",
+     "[expr[NUM_CONST[text()='1']]]",
+     "[OP-COLON]",
+     "[expr[expr[SYMBOL_FUNCTION_CALL[text()='nrow']]]]"
+)
+```
+
+We can search for this subtree with `xml2::xml_find_all()`:
+
+```{r}
+bad_nrow <- xml_find_all(xml, xp)
+bad_nrow
+```
+
+There is only one hit, in line 334:
+
+```{r}
+cbind(332:336, src[332:336])
 ```
 
 ## License
