@@ -42,7 +42,7 @@ test_that("non-trivial input", {
 
 test_that("UTF-8 is OK", {
 
-  src <- "# comment with éápő"
+  src <- iconv("# comment with éápő", to = "UTF-8")
   xml <- xml_parse_data(parse(text = src, keep.source = TRUE))
   x <- xml2::read_xml(xml)
 
@@ -60,7 +60,7 @@ test_that("UTF-8 is OK", {
 
   op <- xml2::xml_find_all(
     xml2::read_xml(xml),
-    "/exprlist/expr/expr/SYMBOL[text()='`%ééé%`']"
+    iconv("/exprlist/expr/expr/SYMBOL[text()='`%ééé%`']", to = "UTF-8")
   )
   expect_equal(length(op), 1)
 })
