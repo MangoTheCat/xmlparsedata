@@ -39,3 +39,28 @@ test_that("non-trivial input", {
   )
   expect_silent(x <- xml2::read_xml(xml))  
 })
+
+test_that("UTF-8 is OK", {
+
+  src <- "# comment with éápő"
+  xml <- xml_parse_data(parse(text = src, keep.source = TRUE))
+  x <- xml2::read_xml(xml)
+
+  comment <- xml2::xml_children(x)
+  col1 <- xml2::xml_attr(comment, "col1")
+  col2 <- xml2::xml_attr(comment, "col2")
+
+  expect_equal(
+    substring(src, col1, col2),
+    src
+  )
+
+  src <- "`%ééé%` <- function(l, r) l + r"
+  xml <- xml_parse_data(parse(text = src, keep.source = TRUE), pretty = TRUE)
+
+  op <- xml2::xml_find_all(
+    xml2::read_xml(xml),
+    "/exprlist/expr/expr/SYMBOL[text()='`%ééé%`']"
+  )
+  expect_equal(length(op), 1)
+})
