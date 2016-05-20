@@ -10,6 +10,8 @@ LazyData: true
 URL: https://github.com/MangoTheCat/xmlparsedata#readme
 BugReports: https://github.com/MangoTheCat/xmlparsedata/issues
 RoxygenNote: 5.0.1.9000
-Suggests: 
-    testthat
+Suggests:
+    covr,
+    testthat,
+    xml2
 Depends: R (>= 3.0.0)
