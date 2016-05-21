@@ -59,7 +59,13 @@ xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
   )
   xml_footer <- "\n</exprlist>\n"
 
-  pd <- getParseData(x, includeText = includeText)
+  ## Maybe it is already a data frame, e.g. when used in lintr
+  if (is.data.frame(x)) {
+    pd <- x
+
+  } else {
+    pd <- getParseData(x, includeText = includeText)
+  }
 
   if (!nrow(pd)) return(paste0(xml_header, xml_footer))
 

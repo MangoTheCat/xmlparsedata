@@ -37,7 +37,7 @@ test_that("non-trivial input", {
     parse(text = dp, keep.source = TRUE),
     pretty = TRUE
   )
-  expect_silent(x <- xml2::read_xml(xml))  
+  expect_silent(x <- xml2::read_xml(xml))
 })
 
 test_that("UTF-8 is OK", {
@@ -76,4 +76,18 @@ test_that("UTF-8 is OK", {
     iconv("/exprlist/expr/expr/SYMBOL[text()='`%ééé%`']", to = "UTF-8")
   )
   expect_equal(length(op), 1)
+})
+
+test_that("data frame input", {
+
+  p <- parse(text = "1 + 1", keep.source = TRUE)
+
+  pd <- getParseData(p)
+  attr(pd, "srcfile") <- NULL
+  class(pd) <- "data.frame"
+  x1 <- xml_parse_data(pd)
+
+  x2 <- xml_parse_data(p)
+
+  expect_equal(x1, x2)
 })
