@@ -73,12 +73,17 @@ xml_parse_data <- function(x, includeText = NA, pretty = FALSE) {
 
   ## Tags for all nodes, teminal nodes have end tags as well
   pd$token <- map_token(pd$token)
+
+  ## Positions, to make it easy to compare what comes first
+  pd$pos <- order(pd$line1, pd$col1, -pd$line2, -pd$col2, pd$terminal)
+
   pd$tag <- paste0(
     "<", pd$token,
     " line1=\"", pd$line1,
     "\" col1=\"", pd$col1,
     "\" line2=\"", pd$line2,
     "\" col2=\"", pd$col2,
+    "\" pos=\"", pd$pos,
     "\">",
     xml_encode(pd$text),
     ifelse(pd$terminal, paste0("</", pd$token, ">"), "")
