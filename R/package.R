@@ -167,6 +167,6 @@ xml_encode <- function(x) {
   x <- gsub("\003", "", x, fixed = TRUE) # Control-C character are not allowed in xml 1.0
   x <- gsub("\007", "", x, fixed = TRUE) # neither is Bell
   x <- gsub("\010", "", x, fixed = TRUE) # neither is Backspace
-  x <- gsub("\033", "", x, fixed = TRUE) # neither is Escape
+  x <- gsub("\027", "", x, fixed = TRUE) # neither is Escape
   x
 }
